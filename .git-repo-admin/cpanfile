@@ -1,0 +1,7 @@
+# Not really part of Carton.
+# At least this Perl version
+requires 'perl', '5.18.4';
+
+# The only package we need.
+requires 'Git::Hooks', '1.0.2';
+
