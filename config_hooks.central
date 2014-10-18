@@ -1,0 +1,4 @@
+[githooks]
+	plugin = CheckLog
+[githooks "checklog"]
+	match = ^Tweak.*$
