@@ -2,3 +2,6 @@
 	plugin = CheckLog
 [githooks "checklog"]
 	match = ^Tweak.*$
+[githooks]
+	externals = 1
+	hooks = .git-repo-admin/hooks.central
