@@ -1,7 +1,7 @@
 [githooks]
 	plugin = CheckLog
 [githooks "checklog"]
-	match = ^Tweak.*$
+	title-required = 0
+	match = ^Tweak
 [githooks]
-	externals = 1
-	hooks = .git-repo-admin/hooks.central
+	hooks = hooks.d

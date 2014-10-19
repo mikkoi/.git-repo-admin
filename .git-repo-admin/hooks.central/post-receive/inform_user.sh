@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 echo "Params:$@"
 BARE_REPO_DIR=$(pwd)
+echo "post-receive/inform_user.sh: Now in dir ${BARE_REPO_DIR}"
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
@@ -10,4 +11,6 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd ${DIR}
 echo "post-receive/inform_user.sh: Now in dir ${DIR}"
-carton exec ./inform_user.sh ${BARE_REPO_DIR}
+echo "Now executing: carton exec ./inform_user.sh ${BARE_REPO_DIR} $@"
+carton exec ../carton_executables/inform_user.pl ${BARE_REPO_DIR} $@
+
