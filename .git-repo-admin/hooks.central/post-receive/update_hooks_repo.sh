@@ -1,5 +1,4 @@
 #!/bin/sh
-echo "Params:$@"
 BARE_REPO_DIR=$(pwd)
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -9,5 +8,7 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd ${DIR}
-echo "post-receive/inform_user.sh: Now in dir ${DIR}"
-carton exec ./inform_user.sh ${BARE_REPO_DIR}
+echo "post-receive/update_hooks_repo.sh: Now in dir ${DIR}"
+cd ../repo.hooks
+git pull origin master
+

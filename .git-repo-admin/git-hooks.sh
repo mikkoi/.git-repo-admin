@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "params:$@"
 BARE_REPO_DIR=$(pwd)
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -8,5 +9,6 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd ${DIR}
-carton exec ./git-hooks.sh ${BARE_REPO_DIR}
+echo "Now in dir ${DIR}"
+carton exec ./git-hooks.pl ${BARE_REPO_DIR}
 
