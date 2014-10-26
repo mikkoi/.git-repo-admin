@@ -8,7 +8,7 @@
 
 # Activate verbose if desired
 VERBOSE=0
-CONF_DBG=`git config --get githooks.edebug` && [ "${CONF_DBG}" = "1" ] && DEBUG=1
+CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
 if [ "$VERBOSE" = "1" ]; then echo "Parameters:$@"; fi
 BARE_REPO_DIR=$(pwd)
 HOOK_NAME=${BASH_SOURCE} # Actually "hooks/<hook name>"

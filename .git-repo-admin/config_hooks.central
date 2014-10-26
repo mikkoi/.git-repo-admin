@@ -1,4 +1,5 @@
 [githooks]
+	debug = 1
 	plugin = CheckLog
 [githooks "checklog"]
 	title-required = 0
