@@ -25,8 +25,6 @@ cd ${DIR}
 exec carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@
 # *** End of Bash script ***
 
-
-
 # *** Start of Perl script
 #!/usr/bin/env perl
 use strict; use warnings;
