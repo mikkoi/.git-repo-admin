@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 #
 # Jumps to the admin directory and executes the perl script underneath
 # this Bash script.
