@@ -17,4 +17,3 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd ${DIR}
 echo "Now in dir ${DIR}"
 exec carton exec ./git-hooks.pl ${BARE_REPO_DIR} ${HOOK_NAME} $@
-
