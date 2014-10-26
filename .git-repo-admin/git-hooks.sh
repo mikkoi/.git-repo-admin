@@ -13,6 +13,7 @@ done
 THIS_SCRIPT="${SOURCE}"
 echo "This script:${SOURCE}"
 
+
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 cd ${DIR}
 echo "Now in dir ${DIR}"
