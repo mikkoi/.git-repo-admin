@@ -21,7 +21,7 @@ THIS_SCRIPT="${SOURCE}"
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ "$VERBOSE" = "1" ]; then echo "DIR=${DIR}"; fi
 cd ${DIR}
-CARTON_CMD="carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@"
+CARTON_CMD="carton exec perl -x ${THIS_SCRIPT} $@"
 if [ "$VERBOSE" = "1" ]; then echo "CARTON_CMD=${CARTON_CMD}"; fi
 exec ${CARTON_CMD}
 
@@ -34,13 +34,6 @@ use strict;
 use warnings;
 my $verbose = 0;
 $verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
-#my $central_repo_dir = shift @ARGV;
-#my $hook_name = shift @ARGV;
-#chdir $central_repo_dir;
-#print "git-hooks.sh(pl) now in dir '$central_repo_dir'.\n" if ($verbose);
-#use Git::Hooks;
-#print "Executing: run_hook($hook_name, @ARGV)\n" if ($verbose);
-#run_hook($hook_name, @ARGV);
 use InitializeHooks;
 use constant GIT_HOOKS => [qw(
    pre-receive
