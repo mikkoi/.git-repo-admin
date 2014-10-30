@@ -31,6 +31,7 @@ use strict;
 use warnings;
 my $verbose = 0;
 $verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
+print "Verbose activated!\n" if $verbose;
 use InitializeHooks;
 use constant GIT_HOOKS => [qw(
    pre-receive

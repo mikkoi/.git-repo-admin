@@ -1,5 +1,4 @@
-# Not really part of Carton.
-# At least this Perl version
+# At least this Perl version (can be higher):
 requires 'perl', '5.18.4';
 
 # The only package we need.

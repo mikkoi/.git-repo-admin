@@ -160,7 +160,7 @@ sub fix_git_config {
    tie @config_rows, 'Tie::File', $config_filename || die;
    my $already_set = 0;
    foreach my $config_row (@config_rows) {
-      print "Existing config:$config_row.\n" if($verbose);
+      print "Existing config:$config_row.\n" if $verbose;
       $already_set = 1 if($config_row =~ /path[\s]*=[\s]*$hooks_cfg_linkname/);
    }
    if( ! $already_set ) {
