@@ -19,9 +19,14 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 THIS_SCRIPT="${SOURCE}"
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+if [ "$VERBOSE" = "1" ]; then echo "DIR=${DIR}"; fi
 cd ${DIR}
-exec carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@
+CARTON_CMD="carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@"
+if [ "$VERBOSE" = "1" ]; then echo "CARTON_CMD=${CARTON_CMD}"; fi
+exec ${CARTON_CMD}
+
 # *** End of Bash script ***
+
 
 # *** Start of Perl script
 #!/usr/bin/env perl
