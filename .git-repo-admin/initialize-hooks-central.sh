@@ -8,16 +8,13 @@
 VERBOSE=1
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
 if [ "$VERBOSE" = "1" ]; then echo "Parameters:$@"; fi
-BARE_REPO_DIR=$(pwd)
-HOOK_NAME=${BASH_SOURCE} # Actually "hooks/<hook name>"
-if [ "$VERBOSE" = "1" ]; then echo "HOOK_NAME=${HOOK_NAME}"; fi
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
   [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 done
-THIS_SCRIPT="${SOURCE}"
+THIS_SCRIPT=`basename ${SOURCE}`
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ "$VERBOSE" = "1" ]; then echo "DIR=${DIR}"; fi
 cd ${DIR}
