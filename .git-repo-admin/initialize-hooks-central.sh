@@ -3,11 +3,9 @@
 #
 # Jumps to the admin directory and executes the perl script underneath
 # this Bash script.
-# The directory is "controlled" by plenv and Carton, forces perl 
-# to be desired version, not system perl.
 
 # Activate verbose if desired
-VERBOSE=0
+VERBOSE=1
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
 if [ "$VERBOSE" = "1" ]; then echo "Parameters:$@"; fi
 BARE_REPO_DIR=$(pwd)
@@ -27,14 +25,31 @@ exec carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@
 
 # *** Start of Perl script
 #!/usr/bin/env perl
-use strict; use warnings;
+use strict;
+use warnings;
 my $verbose = 0;
 $verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
-my $central_repo_dir = shift @ARGV;
-my $hook_name = shift @ARGV;
-chdir $central_repo_dir;
-print "git-hooks.sh(pl) now in dir '$central_repo_dir'.\n" if ($verbose);
-use Git::Hooks;
-print "Executing: run_hook($hook_name, @ARGV)\n" if ($verbose);
-run_hook($hook_name, @ARGV);
+#my $central_repo_dir = shift @ARGV;
+#my $hook_name = shift @ARGV;
+#chdir $central_repo_dir;
+#print "git-hooks.sh(pl) now in dir '$central_repo_dir'.\n" if ($verbose);
+#use Git::Hooks;
+#print "Executing: run_hook($hook_name, @ARGV)\n" if ($verbose);
+#run_hook($hook_name, @ARGV);
+use InitializeHooks;
+use constant GIT_HOOKS => [qw(
+   pre-receive
+   post-receive
+   update
+)];
+#my $repo_cfg_dir = File::Spec->catfile( File::Spec->updir(), '.git', 'config' );
+my $repo_cfg_dir = File::Spec->catfile( InitializeHooks::get_bare_repo_dir() );
+InitializeHooks::execute('verbose' => $verbose,
+   'dry-run' => 1,
+   'hooks' => GIT_HOOKS(),
+   'hooks_cfg_filename' => 'hooks_config.central',
+   'bare_repo_path' => InitializeHooks::get_bare_repo_dir(),
+   'repo_cfg_dir' => $repo_cfg_dir,
+   );
+exit 0;
 
