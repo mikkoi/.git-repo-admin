@@ -140,6 +140,8 @@ sub fix_git_config {
          File::Copy::copy($config_filename, $config_bak_filename) unless $dry_run;
          push @config_rows, "[include]\n" unless $dry_run;
          push @config_rows, "\tpath = $hooks_cfg_linkname\n" unless $dry_run;
+         print "Added rows to config 'config_filename':\n";
+         print "[include]\n\tpath = $hooks_cfg_linkname\n";
       }
       else {
          print "Already set, no changes.\n";
@@ -163,12 +165,6 @@ sub fix_git_config {
       }
    }
    return $already_set;
-}
-
-sub is_central_repo {
-   my $hostname = Sys::Hostname->hostname();
-   my $curdir = File::Spec->curdir();
-   return ($hostname =~ /^subgit\.vpn\.$/gsx && $curdir =~ /^\/srv\/git\/.*$/gsx);
 }
 
 # Params: [NONE]
@@ -197,6 +193,7 @@ sub link_file_to_other_config {
       if($action eq 'INSTALL') {
          print "Execute:", " symlink ", (join ",", @symlink_params), "\n" if($verbose);
          symlink $link_to_filepath, $link_filepath if ( ! $dry_run);
+         print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
       }
    }
    return 1;
@@ -232,6 +229,7 @@ sub setup_git_hooks {
          if($action eq 'INSTALL') {
             print "Execute: symlink ", (join ",", @symlink_params), "\n" if($verbose);
             symlink $link_to_filepath, $link_filepath unless $dry_run;
+            print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
          }
       }
    }
@@ -251,6 +249,7 @@ sub setup_git_hooks {
       if($action eq 'INSTALL') {
          print "Execute: symlink ", (join ",", @symlink_params), "\n" if($verbose);
          symlink $link_to_filepath, $link_filepath if ( ! $dry_run);
+         print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
       }
    }
    return 1;

@@ -1,0 +1,8 @@
+[githooks]
+	debug = 0
+	plugin = CheckLog
+[githooks "checklog"]
+	title-required = 0
+	match = ^Tweak
+[githooks]
+	hooks = hooks.d

@@ -62,8 +62,8 @@ if($install_central) {
       post-receive
       update
    );
-   $hooks_cfg_filename = 'config_hooks.local';
-   $userhooks_dirname = 'hooks.d.local';
+   $hooks_cfg_filename = 'config_hooks.central';
+   $userhooks_dirname = 'hooks.d.central';
    $repo_cfg_dir = File::Spec->catfile( InitializeHooks::get_bare_repo_dir() );
 }
 else {
@@ -85,9 +85,9 @@ else {
       update
       prepare-commit-msg
    );
-   $hooks_cfg_filename = 'config_hooks.central';
-   $userhooks_dirname = 'hooks.d.central';
-   $repo_cfg_dir = File::Spec->catfile( File::Spec->updir(), '.git', 'config' );
+   $hooks_cfg_filename = 'config_hooks.local';
+   $userhooks_dirname = 'hooks.d.local';
+   $repo_cfg_dir = File::Spec->catfile( File::Spec->updir(), '.git' );
 }
 InitializeHooks::execute('verbose' => $verbose,
    'dry_run' => $dry_run,
