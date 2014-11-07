@@ -1,6 +1,8 @@
 package InitializeHooks;
 
-###!/usr/bin/env perl
+use strict;
+use warnings 'all';
+
 my $verbose = 0;
 $verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
 # This file creates the necessary links to get the hooks working.
@@ -13,13 +15,11 @@ $verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
 # 3) create hook links 
 #
 
-use strict;
-use warnings 'all';
 use English qw( -no_match_vars );
 use File::Spec qw();
 use Tie::File;
 use File::Copy qw();
-use Sys::Hostname qw();
+use File::Path qw();
 use Data::Dumper qw(Dumper);
 
 # Constants
@@ -30,8 +30,14 @@ my $timestamp = (localtime)[5]+1900 . '-'
       . '-' . (localtime time)[3];
 
 # The Perl version to use with plenv in local directory (for Git::Hooks).
-my $perl_version = '5.16.2';
-my $perl_name = 'git-hooks-' . $perl_version;
+my $perl_version_filename = File::Spec->rel2abs(File::Spec->catfile(
+      File::Spec->curdir, '.perl-version' ));
+open my $perl_version_fh, "<", $perl_version_filename;
+my $perl_version_file_contents = <$perl_version_fh>;
+close $perl_version_fh;
+chomp $perl_version_file_contents;
+my ($perl_version) = $perl_version_file_contents =~ /(.*)(-git-hooks)/;
+my $perl_name = $perl_version_file_contents;
 my $RED = "\033[0;31m";
 my $NO_COLOUR="\033[0m";
 
@@ -63,18 +69,54 @@ sub install_prerequisites {
    my %params = @_;
    my $verbose = defined $params{'verbose'} ? $params{'verbose'} : 0;
    my $dry_run = defined $params{'dry_run'} ? $params{'dry_run'} : 0;
+   my $repo_cfg_dir = defined $params{'repo_cfg_dir'} ? $params{'repo_cfg_dir'} : 0;
    my $perl_version = defined $params{'perl_version'} ? $params{'perl_version'} : 0;
    my $perl_name = defined $params{'perl_name'} ? $params{'perl_name'} : 0;
+   my $action = defined $params{'action'} ? $params{'action'} : 0;
+   die "Unknown action '$action'!" if ($action !~ /^(INSTALL|REMOVE)$/);
+
    print "Checking (and installing missing) prerequisites...\n";
-   print "Installing Perl v. $perl_version into 'plenv' as '$perl_name'.\n";
-   system("plenv install $perl_version --as=$perl_name");
+   print "Installing Perl v.$perl_version into 'plenv' as '$perl_name'.\n";
+   my $plenv_install_cmd = "cd /; plenv install $perl_version --as=$perl_name";
+   print "plenv_install_cmd=$plenv_install_cmd.\n" if $verbose;
+   # cd to root. Otherwise cannot install perl 
+   # because plenv is tied to .perl-version version.
+   system($plenv_install_cmd);
    system("plenv rehash");
    system("plenv install-cpanm");
    system("plenv rehash");
    print "Installing 'Carton'.\n";
    system("cpanm Carton");
    print "Installing Perl dependencies using 'Carton'.\n";
-   system("carton install --deployment");
+   my $link_filepath = File::Spec->rel2abs(File::Spec->catdir(File::Spec->curdir(), 'local')); # This link already exists!
+   my $link_to_filepath = File::Spec->rel2abs(File::Spec->catdir($repo_cfg_dir, 'git-hooks-carton-local'));
+   if( -e $link_filepath && ! -l $link_filepath ) {
+      die "The file '$link_filepath' already exists and it is not a link. Aborting...";
+   }
+   elsif( -e $link_to_filepath && ! -d $link_to_filepath ) {
+      die "The file '$link_to_filepath' already exists and it is not a directory. Aborting...";
+   }
+   else {
+      my @unlink_params = ($link_filepath);
+      my @symlink_params = ($link_to_filepath, $link_filepath);
+         #print "Execute: unlink ", (join ",", @unlink_params), "\n" if $verbose;
+         #unlink $link_filepath unless $dry_run;
+      if($action eq 'INSTALL') {
+         print "Execute: make_path($link_to_filepath)" if $verbose;
+         File::Path::make_path($link_to_filepath, { 'verbose' => 1, }) unless $dry_run;
+#print "Execute:", " symlink ", (join ",", @symlink_params), "\n" if $verbose;
+#symlink $link_to_filepath, $link_filepath if ( ! $dry_run);
+#print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
+      }
+      else {
+         print "Not removing Carton installed CPAN files (in dir '.git/carton_local').\n";
+         #print "Execute: remove_tree($link_to_filepath)" if $verbose;
+         #File::Path->remove_tree($link_to_filepath, { 'verbose' => 1, 'safe' => 1, }) unless $dry_run;
+      }
+   }
+   if($action eq 'INSTALL') {
+      system("carton install --deployment");
+   }
    return 1;
 }
 
@@ -156,9 +198,9 @@ sub fix_git_config {
          print ":'$config_row'\n" if $verbose;
          if($config_row =~ /path[\s]*=[\s]*$hooks_cfg_linkname/) {
             print "Remove the following rows:\n:$config_rows[$i-1]\n:$config_rows[$i]\n" if $verbose;
-            my @removed = splice @config_rows, $i-1, 2 unless $dry_run;
-            print "Removed the following rows:\n";
-            print join "\n", @removed; print "\n";
+            my @removed;
+            @removed = splice @config_rows, $i-1, 2 unless $dry_run;
+            print "Removed the following rows:\n", (join "\n", @removed), "\n" unless $dry_run;
             $already_set = 0;
             last;
          }
@@ -229,10 +271,11 @@ sub setup_git_hooks {
          if($action eq 'INSTALL') {
             print "Execute: symlink ", (join ",", @symlink_params), "\n" if($verbose);
             symlink $link_to_filepath, $link_filepath unless $dry_run;
-            print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
+            print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n" if($verbose);
          }
       }
    }
+   print "Created/renewed symlinks for main Git hooks (total " . scalar @{$hooks} . ").\n";
    $link_to_filepath = File::Spec->rel2abs(File::Spec->catfile(File::Spec->curdir(), $userhooks_dirname));
    my $link_filepath = File::Spec->rel2abs(File::Spec->catfile($repo_cfg_dir, 'hooks.d'));
 
@@ -255,6 +298,76 @@ sub setup_git_hooks {
    return 1;
 }
 
+# Place here required bits for local hooks,
+# Except CPAN Perl modules. Place those in cpanfile.
+sub handle_local_hooks_prerequisites {
+   my %params = @_;
+   my $verbose = defined $params{'verbose'} ? $params{'verbose'} : 0;
+   my $dry_run = defined $params{'dry_run'} ? $params{'dry_run'} : 0;
+   my $action = defined $params{'action'} ? $params{'action'} : 0;
+   print "Checking (and installing missing) prerequisites for local hooks...\n";
+
+   # CPPCheck
+   my $cppcheck_installed = ! system("cppcheck --version");
+   if($cppcheck_installed) {
+      print "'cppcheck' already installed.\n",
+            "Skipping...\n";
+   }
+   else {
+      if($action eq 'INSTALL') {
+         print "Installing CPPCheck, the C/C++ code checker.\n";
+         print "Root access required.\n";
+         system("sudo apt-get --assume-yes install cppcheck");
+      }
+      else {
+         print "Removing CPPCheck, the C/C++ code checker.\n";
+         print "Root access required.\n";
+         system("sudo apt-get --assume-yes remove cppcheck");
+      }
+   }
+
+   # Pylint
+   my $pylint_installed = ! system("dpkg --status pylint >/dev/null");
+   if($pylint_installed) {
+      print "Debian package 'pylint' already installed.\n",
+            "Skipping...\n";
+   }
+   else {
+      if($action eq 'INSTALL') {
+         print "Installing PyLint, the Python code checker.\n";
+         print "Root access required.\n";
+         system("sudo apt-get --assume-yes install pylint");
+      }
+      else {
+         print "Removing PyLint, the Python code checker.\n";
+         print "Root access required.\n";
+         system("sudo apt-get --assume-yes remove pylint");
+      }
+   }
+
+   return 1;
+}
+
+# Place here required bits for central repo hooks,
+# Except CPAN Perl modules. Place those in cpanfile.
+sub handle_central_hooks_prerequisites {
+   my %params = @_;
+   my $verbose = defined $params{'verbose'} ? $params{'verbose'} : 0;
+   my $dry_run = defined $params{'dry_run'} ? $params{'dry_run'} : 0;
+   my $action = defined $params{'action'} ? $params{'action'} : 0;
+   print "Checking (and installing missing) prerequisites for central hooks...\n";
+
+   return 1;
+}
+
+sub centrify_text {
+   my ($text, $field_width) = @_;
+   my $text_width = length $text;
+   my $space = sprintf ' ' x int (($field_width - $text_width) / 2);
+   my $result = $space . $text . $space;
+   return length $result == $field_width ? $result : $result . " ";
+}
+
 sub execute {
    my %params = @_;
    my $verbose = defined $params{'verbose'} ? $params{'verbose'} : 0;
@@ -267,19 +380,20 @@ sub execute {
    my $userhooks_dirname = defined $params{'userhooks_dirname'} ? $params{'userhooks_dirname'} : [ ];
    my $action = defined $params{'action'} ? $params{'action'} : 0;
    die "Unknown action '$action'!" if ($action !~ /^(INSTALL|REMOVE)$/);
+   my $local_hooks = defined $params{'local_hooks'} ? $params{'local_hooks'} : 0;
    print Dumper(\%params) if ($verbose);
    print "Dry-run activated!\n" if ($dry_run);
    
-   my $title = "Setup this Git repository";
-   print "*" x ((length $title) + 8), "\n";
-   print "*** $title ***\n";
-   print "*" x ((length $title) + 8), "\n";
+   my $title = "Setup this Git repository with Git::Hooks";
+   print "*" x 79, "\n";
+   print "*** " . centrify_text($title, 71) . " ***\n";
+   print "*" x 79, "\n";
 
    if(! check_plenv() ) { exit 1; }
    install_prerequisites('verbose' => $verbose, 'dry_run' => $dry_run,
-         'perl_version' => $perl_version, 'perl_name' => $perl_name ) unless $action eq 'REMOVE';
-   #my $already_set = 1; #fix_git_config();
-   #my $hooks_cfg_filename = 'config_hooks.central';
+         'repo_cfg_dir' => $repo_cfg_dir,
+         'perl_version' => $perl_version, 'perl_name' => $perl_name,
+         'action' => $action, );
    my $hooks_cfg_linkname = 'config_hooks';
    my $already_set = fix_git_config('verbose' => $verbose, 'dry_run' => $dry_run,
          'repo_cfg_dir' => $repo_cfg_dir, 'hooks_cfg_linkname' => $hooks_cfg_linkname,
@@ -298,8 +412,26 @@ sub execute {
           'hooks' => $hooks, 
           'userhooks_dirname' => $userhooks_dirname,
          );
+   if($local_hooks) {
+      handle_local_hooks_prerequisites('verbose' => $verbose, 'dry_run' => $dry_run,
+            'action' => $action,
+            );
+   }
+   else {
+      handle_central_hooks_prerequisites('verbose' => $verbose, 'dry_run' => $dry_run,
+            'action' => $action,
+            );
+   }
+
+   my $end_title = "End of Setup";
+   print "*" x 79, "\n";
+   print "*** " . centrify_text($end_title, 71) . " ***\n";
+   print "*" x 79, "\n";
+
    return 0;
 }
+
+1;
 
 __END__
 

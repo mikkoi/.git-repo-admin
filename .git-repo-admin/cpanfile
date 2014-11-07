@@ -1,6 +1,9 @@
 # At least this Perl version (can be higher):
 requires 'perl', '5.18.4';
 
-# The only package we need.
+# The only package we really need.
 requires 'Git::Hooks', '1.3.0';
+
+# PerlCritic for checking the Perl code (most related to Git hooks).
+requires 'Perl::Critic', '1.122';
 

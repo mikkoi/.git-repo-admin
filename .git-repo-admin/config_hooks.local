@@ -1,8 +1,21 @@
 [githooks]
 	debug = 0
 	plugin = CheckLog
-[githooks "checklog"]
-	title-required = 0
-	match = ^Tweak
+	plugin = CheckFile
 [githooks]
 	hooks = hooks.d
+[githooks "checklog"]
+	# https://sentinel.emediate.se/wiki/development:sop:subversion_and_branching
+	# N.B. :space: can also be newline, :blank: is only space and tab.
+	message-on-failure = "Please refer to company commit-message policy: https://sentinel.emediate.se/wiki/development:sop:subversion_and_branching"
+	match = "^[[:space:]]{0,}(Tweak|Bugfix[[:blank:]]{1}#[[:graph:]]{1,}|Partial[[:blank:]]{1}#[[:graph:]]{1,}|Finished[[:blank:]]{1}#[[:graph:]]{1,}):[[:blank:]]{1}.+"
+	title-required = 0
+	title-max-widt = 0
+	title-period = allow
+	body-max-width = 0
+	spelling = 0
+	spelling-lang = EN
+[githooks "checkfile"]
+	name = *.py pylint {} --rcfile .git-repo-admin/.pylintrc
+	name = *.[ch]pp cppcheck --enable=all --quiet --error-exitcode=10 --includes-file=.git-repo-admin/.cppcheck-include-paths.txt {}
+	name = *.p[lm] perlcritic --stern --verbose 5

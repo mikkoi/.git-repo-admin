@@ -14,9 +14,9 @@
 #
 
 # Activate verbose if desired
-VERBOSE=0
+VERBOSE=${VERBOSE}
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
-if [ "$VERBOSE" = "1" ]; then echo "Parameters:$@"; fi
+if [ "$VERBOSE" = "1" ]; then echo "($0) Params:$@"; fi
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
@@ -27,11 +27,13 @@ THIS_SCRIPT=`basename ${SOURCE}`
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ "$VERBOSE" = "1" ]; then echo "DIR=${DIR}"; fi
 cd ${DIR}
-#DEBUG_FILE="${THIS_SCRIPT}_debug_$(date +%Y%m%d%H%M%S)"
-CARTON_CMD="carton exec perl -x ${THIS_SCRIPT} $@"
-if [ "$VERBOSE" = "1" ]; then echo "CARTON_CMD=${CARTON_CMD}"; fi
+CMD="perl -x ${THIS_SCRIPT} $@"
+if [ "$VERBOSE" = "1" ]; then echo "CMD=${CMD}"; fi
 export VERBOSE
-exec ${CARTON_CMD}
+
+if [ "$VERBOSE" = "1" ]; then echo "Set environment PLENV_VERSION=system"; fi
+export PLENV_VERSION='system'
+exec ${CMD}
 
 # *** End of Bash script ***
 
@@ -51,6 +53,9 @@ grep { if($_ =~ /^(--){0,1}remove$/i) { $action = 'REMOVE'; } } @ARGV;
 grep { if($_ =~ /^(--){0,1}dry-run$/i) { $dry_run = 1; } } @ARGV;
 grep { if($_ =~ /^(--){0,1}central$/i) { $install_central = 1; } } @ARGV;
 print "Verbose activated!\n" if $verbose;
+print "Delete the plenv fooling variable.\n" if $verbose;
+delete $ENV{'PLENV_VERSION'};
+print Dumper(\%ENV) if $verbose;
 use InitializeHooks;
 my $hooks_cfg_filename;
 my $userhooks_dirname;
@@ -96,6 +101,7 @@ InitializeHooks::execute('verbose' => $verbose,
    'userhooks_dirname' => $userhooks_dirname,
    'repo_cfg_dir' => $repo_cfg_dir,
    'action' => $action,
+   'local_hooks' => !$install_central,
    );
 exit 0;
 

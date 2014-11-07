@@ -7,10 +7,11 @@
 # to be desired version, not system perl.
 
 # Activate verbose if desired
-VERBOSE=0
+VERBOSE=${VERBOSE}
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
 if [ "$VERBOSE" = "1" ]; then echo "Parameters:$@"; fi
 BARE_REPO_DIR=$(pwd)
+if [ "$VERBOSE" = "1" ]; then echo "BARE_REPO_DIR=${BARE_REPO_DIR}"; fi
 HOOK_NAME=${BASH_SOURCE} # Actually "hooks/<hook name>"
 if [ "$VERBOSE" = "1" ]; then echo "HOOK_NAME=${HOOK_NAME}"; fi
 SOURCE="${BASH_SOURCE[0]}"
@@ -21,8 +22,13 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 THIS_SCRIPT="${SOURCE}"
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+if [ "$VERBOSE" = "1" ]; then echo "DIR=${DIR}"; fi
 cd ${DIR}
-exec carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@
+export VERBOSE
+export DEBUG=1
+CMD="exec carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@"
+if [ "$VERBOSE" = "1" ]; then echo "CMD=${CMD}"; fi
+${CMD}
 # *** End of Bash script ***
 
 # *** Start of Perl script
