@@ -1,5 +1,5 @@
 [githooks]
-	debug = 0
+	debug = 1
 	plugin = CheckLog
 	plugin = CheckFile
 [githooks]
