@@ -16,6 +16,7 @@
 # Activate verbose if desired
 VERBOSE=${VERBOSE}
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
+if [ "$VERBOSE" = "1" ]; then echo "PATH:${PATH}"; fi
 if [ "$VERBOSE" = "1" ]; then echo "($0) Params:$@"; fi
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink

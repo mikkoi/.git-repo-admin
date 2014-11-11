@@ -27,7 +27,7 @@ use Data::Dumper qw(Dumper);
 # Some globals:
 my $timestamp = (localtime)[5]+1900 . '-'
       . qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec )[(localtime time)[4]]
-      . '-' . (localtime time)[3];
+      . '-' . sprintf "%02d", (localtime time)[3];
 
 # The Perl version to use with plenv in local directory (for Git::Hooks).
 my $perl_version_filename = File::Spec->rel2abs(File::Spec->catfile(
@@ -77,10 +77,9 @@ sub install_prerequisites {
 
    print "Checking (and installing missing) prerequisites...\n";
    print "Installing Perl v.$perl_version into 'plenv' as '$perl_name'.\n";
-   my $plenv_install_cmd = "cd /; plenv install $perl_version --as=$perl_name";
+   my $plenv_install_cmd = "cd ..; plenv install $perl_version --as=$perl_name";
    print "plenv_install_cmd=$plenv_install_cmd.\n" if $verbose;
-   # cd to root. Otherwise cannot install perl 
-   # because plenv is tied to .perl-version version.
+   # cd to root. Otherwise file .perl-version prevents from installing.
    system($plenv_install_cmd);
    system("plenv rehash");
    system("plenv install-cpanm");
@@ -258,6 +257,18 @@ sub setup_git_hooks {
    foreach my $hook_filename ( @{$hooks} ) {
       my $link_filepath = File::Spec->rel2abs(File::Spec->catfile(
             $repo_cfg_dir, 'hooks', $hook_filename));
+      print "symlink from '$link_filepath'...\n" if $verbose;
+      # Make sure we behave correctly also in a SubGit controlled repo!
+      my $subgit_sample_hook = $link_filepath;
+      $subgit_sample_hook =~ s/$hook_filename$/user-$hook_filename.sample/g;
+      print "Checking for file '$subgit_sample_hook'...\n" if $verbose;
+      if( -e $subgit_sample_hook ) {
+         $link_filepath =~ s/$hook_filename$/user-$hook_filename/g;
+         print "copy $link_filepath, $link_filepath.bak_$timestamp\n";
+         File::Copy::copy($link_filepath, "$link_filepath.bak_" . $timestamp) unless $dry_run;
+         print "unlink $link_filepath\n";
+         unlink $link_filepath unless $dry_run;
+      }
       print "Creating symlink from '$link_filepath' "
             . "to connect to Git::Hooks ($link_to_filepath).\n" if $verbose;
       if( -e $link_filepath && ! -l $link_filepath ) {
