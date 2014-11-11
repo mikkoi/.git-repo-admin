@@ -2,7 +2,6 @@
 	debug = 1
 	plugin = CheckLog
 	plugin = CheckFile
-[githooks]
 	hooks = hooks.d
 [githooks "checklog"]
 	# https://sentinel.emediate.se/wiki/development:sop:subversion_and_branching
