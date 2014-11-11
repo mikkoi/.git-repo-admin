@@ -11,8 +11,8 @@ VERBOSE=${VERBOSE}
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
 if [ "$VERBOSE" = "1" ]; then echo "PATH:${PATH}"; fi
 if [ "$VERBOSE" = "1" ]; then echo "Parameters:$@"; fi
-BARE_REPO_DIR=$(pwd)
-if [ "$VERBOSE" = "1" ]; then echo "BARE_REPO_DIR=${BARE_REPO_DIR}"; fi
+REPO_DIR=$(pwd)
+if [ "$VERBOSE" = "1" ]; then echo "REPO_DIR=${REPO_DIR}"; fi
 HOOK_NAME=${BASH_SOURCE} # Actually "hooks/<hook name>"
 if [ "$VERBOSE" = "1" ]; then echo "HOOK_NAME=${HOOK_NAME}"; fi
 SOURCE="${BASH_SOURCE[0]}"
@@ -28,7 +28,7 @@ cd ${DIR}
 export VERBOSE
 export DEBUG=1
 if [ -e "git-hooks-hook.sh" ]; then source ./git-hooks-hook.sh; fi
-CMD="exec carton exec perl -x ${THIS_SCRIPT} ${BARE_REPO_DIR} ${HOOK_NAME} $@"
+CMD="exec carton exec perl -x ${THIS_SCRIPT} ${REPO_DIR} ${HOOK_NAME} $@"
 if [ "$VERBOSE" = "1" ]; then echo "CMD=${CMD}"; fi
 ${CMD}
 # *** End of Bash script ***
@@ -38,10 +38,10 @@ ${CMD}
 use strict; use warnings;
 my $verbose = 0;
 $verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
-my $central_repo_dir = shift @ARGV;
+my $repo_dir = shift @ARGV;
 my $hook_name = shift @ARGV;
-chdir $central_repo_dir;
-print "git-hooks.sh(pl) now in dir '$central_repo_dir'.\n" if ($verbose);
+chdir $repo_dir;
+print "git-hooks.sh(pl) now in dir '$repo_dir'.\n" if ($verbose);
 my $subgit_change = $hook_name =~ s/\/(user-)([^\/]+)/\/$2/msx;
 if($subgit_change) { print "This is SubGit repo, removed 'user-' from hooks name.\n" if $verbose; }
 use Git::Hooks;
