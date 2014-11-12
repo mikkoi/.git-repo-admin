@@ -32,7 +32,8 @@ my $timestamp = (localtime)[5]+1900 . '-'
 # The Perl version to use with plenv in local directory (for Git::Hooks).
 my $perl_version_filename = File::Spec->rel2abs(File::Spec->catfile(
       File::Spec->curdir, '.perl-version' ));
-open my $perl_version_fh, "<", $perl_version_filename;
+if(! open my $perl_version_fh, "<", $perl_version_filename) {
+   die "Cannot open file '$perl_version_filename' for reading."
 my $perl_version_file_contents = <$perl_version_fh>;
 close $perl_version_fh;
 chomp $perl_version_file_contents;

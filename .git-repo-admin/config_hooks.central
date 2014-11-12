@@ -4,4 +4,3 @@
 	hooks = hooks.d
 [githooks "checklog"]
 	title-required = 0
-	match = ^Tweak
