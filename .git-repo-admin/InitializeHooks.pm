@@ -319,44 +319,6 @@ sub handle_local_hooks_prerequisites {
    my $action = defined $params{'action'} ? $params{'action'} : 0;
    print "Checking (and installing missing) prerequisites for local hooks...\n";
 
-   # CPPCheck
-   my $cppcheck_installed = ! system("cppcheck --version");
-   if($cppcheck_installed) {
-      print "'cppcheck' already installed.\n",
-            "Skipping...\n";
-   }
-   else {
-      if($action eq 'INSTALL') {
-         print "Installing CPPCheck, the C/C++ code checker.\n";
-         print "Root access required.\n";
-         system("sudo apt-get --assume-yes install cppcheck");
-      }
-      else {
-         print "Removing CPPCheck, the C/C++ code checker.\n";
-         print "Root access required.\n";
-         system("sudo apt-get --assume-yes remove cppcheck");
-      }
-   }
-
-   # Pylint
-   my $pylint_installed = ! system("dpkg --status pylint >/dev/null");
-   if($pylint_installed) {
-      print "Debian package 'pylint' already installed.\n",
-            "Skipping...\n";
-   }
-   else {
-      if($action eq 'INSTALL') {
-         print "Installing PyLint, the Python code checker.\n";
-         print "Root access required.\n";
-         system("sudo apt-get --assume-yes install pylint");
-      }
-      else {
-         print "Removing PyLint, the Python code checker.\n";
-         print "Root access required.\n";
-         system("sudo apt-get --assume-yes remove pylint");
-      }
-   }
-
    return 1;
 }
 
