@@ -12,4 +12,4 @@
 	spelling = 0
 	spelling-lang = EN
 [githooks "checkfile"]
-	name = *.p[lm] cd .git-repo-admin; carton exec perlcritic --harsh --verbose 5 {}
+	name = *.p[lm] cd .git-repo-admin && carton exec \"perlcritic --profile .perlcriticrc --gentle --verbose 5 {}\"

@@ -21,6 +21,8 @@ use Tie::File;
 use File::Copy qw();
 use File::Path qw();
 use Data::Dumper qw(Dumper);
+use InitializeHooksLocal qw();
+use InitializeHooksCentral qw();
 
 # Constants
 
@@ -32,8 +34,10 @@ my $timestamp = (localtime)[5]+1900 . '-'
 # The Perl version to use with plenv in local directory (for Git::Hooks).
 my $perl_version_filename = File::Spec->rel2abs(File::Spec->catfile(
       File::Spec->curdir, '.perl-version' ));
-if(! open my $perl_version_fh, "<", $perl_version_filename) {
+my $perl_version_fh;
+if(! open $perl_version_fh, "<", $perl_version_filename) {
    die "Cannot open file '$perl_version_filename' for reading."
+}
 my $perl_version_file_contents = <$perl_version_fh>;
 close $perl_version_fh;
 chomp $perl_version_file_contents;
@@ -317,7 +321,11 @@ sub handle_local_hooks_prerequisites {
    my $verbose = defined $params{'verbose'} ? $params{'verbose'} : 0;
    my $dry_run = defined $params{'dry_run'} ? $params{'dry_run'} : 0;
    my $action = defined $params{'action'} ? $params{'action'} : 0;
-   print "Checking (and installing missing) prerequisites for local hooks...\n";
+
+   InitializeHooksLocal::execute('verbose' => $verbose,
+   'dry_run' => $dry_run,
+   'action' => $action,
+   );
 
    return 1;
 }
@@ -329,7 +337,11 @@ sub handle_central_hooks_prerequisites {
    my $verbose = defined $params{'verbose'} ? $params{'verbose'} : 0;
    my $dry_run = defined $params{'dry_run'} ? $params{'dry_run'} : 0;
    my $action = defined $params{'action'} ? $params{'action'} : 0;
-   print "Checking (and installing missing) prerequisites for central hooks...\n";
+
+   InitializeHooksCentral::execute('verbose' => $verbose,
+   'dry_run' => $dry_run,
+   'action' => $action,
+   );
 
    return 1;
 }

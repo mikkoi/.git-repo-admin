@@ -17,23 +17,24 @@
 VERBOSE=${VERBOSE}
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
 if [ "$VERBOSE" = "1" ]; then echo "PATH:${PATH}"; fi
-if [ "$VERBOSE" = "1" ]; then echo "($0) Params:$@"; fi
+if [ "$VERBOSE" = "1" ]; then echo "Command line: '$0 $@'"; fi
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
 THIS_SCRIPT=`basename ${SOURCE}`
-DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-if [ "$VERBOSE" = "1" ]; then echo "DIR=${DIR}"; fi
-cd ${DIR}
+THIS_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+if [ "$VERBOSE" = "1" ]; then echo "This script located in '${THIS_SCRIPT_DIR}'. Changing there."; fi
+cd ${THIS_SCRIPT_DIR}
 CMD="perl -x ${THIS_SCRIPT} $@"
-if [ "$VERBOSE" = "1" ]; then echo "CMD=${CMD}"; fi
-export VERBOSE
+if [ "$VERBOSE" = "1" ]; then CMD="${CMD} --verbose"; fi
+if [ "$VERBOSE" = "1" ]; then echo "Executing: ${CMD}"; fi
 
 if [ "$VERBOSE" = "1" ]; then echo "Set environment PLENV_VERSION=system"; fi
-export PLENV_VERSION='system'
+export PLENV_VERSION="system" # This script executed without plenv and Carton
+# (in case Carton or the required perl version not yet installed).
 exec ${CMD}
 
 # *** End of Bash script ***
@@ -49,7 +50,8 @@ my $action = 'INSTALL';
 my $dry_run = 0;
 my $install_central = 0;
 # Cannot pass --verbose because Carton will snatch it before us!
-$verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
+#$verbose = $ENV{'VERBOSE'} if defined $ENV{'VERBOSE'};
+grep { if($_ =~ /^(--){0,1}verbose$/i) { $verbose = 1; } } @ARGV;
 grep { if($_ =~ /^(--){0,1}remove$/i) { $action = 'REMOVE'; } } @ARGV;
 grep { if($_ =~ /^(--){0,1}dry-run$/i) { $dry_run = 1; } } @ARGV;
 grep { if($_ =~ /^(--){0,1}central$/i) { $install_central = 1; } } @ARGV;
@@ -57,7 +59,7 @@ print "Verbose activated!\n" if $verbose;
 print "Delete the plenv fooling variable.\n" if $verbose;
 delete $ENV{'PLENV_VERSION'};
 print Dumper(\%ENV) if $verbose;
-use InitializeHooks;
+use InitializeHooks qw();
 my $hooks_cfg_filename;
 my $userhooks_dirname;
 my $repo_cfg_dir;
