@@ -21,8 +21,7 @@ use Tie::File;
 use File::Copy qw();
 use File::Path qw();
 use Data::Dumper qw(Dumper);
-use InitializeHooksLocal qw();
-use InitializeHooksCentral qw();
+use Module::Load::Conditional qw[can_load];
 
 # Constants
 
@@ -80,8 +79,8 @@ sub install_prerequisites {
    my $action = defined $params{'action'} ? $params{'action'} : 0;
    die "Unknown action '$action'!" if ($action !~ /^(INSTALL|REMOVE)$/);
 
-   print "Checking (and installing missing) prerequisites...\n";
-   print "Installing Perl v.$perl_version into 'plenv' as '$perl_name'.\n";
+   print "Checking (and installing missing) prerequisites...\n" if $verbose;
+   print "Installing Perl v.$perl_version into 'plenv' as '$perl_name'.\n" if $verbose;
    my $plenv_install_cmd = "cd ..; plenv install $perl_version --as=$perl_name";
    print "plenv_install_cmd=$plenv_install_cmd.\n" if $verbose;
    # cd to root. Otherwise file .perl-version prevents from installing.
@@ -91,7 +90,7 @@ sub install_prerequisites {
    system("plenv rehash");
    print "Installing 'Carton'.\n";
    system("cpanm Carton");
-   print "Installing Perl dependencies using 'Carton'.\n";
+   print "Installing Perl dependencies using 'Carton'.\n" if $verbose;
    my $link_filepath = File::Spec->rel2abs(File::Spec->catdir(File::Spec->curdir(), 'local')); # This link already exists!
    my $link_to_filepath = File::Spec->rel2abs(File::Spec->catdir($repo_cfg_dir, 'git-hooks-carton-local'));
    if( -e $link_filepath && ! -l $link_filepath ) {
@@ -103,19 +102,12 @@ sub install_prerequisites {
    else {
       my @unlink_params = ($link_filepath);
       my @symlink_params = ($link_to_filepath, $link_filepath);
-         #print "Execute: unlink ", (join ",", @unlink_params), "\n" if $verbose;
-         #unlink $link_filepath unless $dry_run;
       if($action eq 'INSTALL') {
          print "Execute: make_path($link_to_filepath)" if $verbose;
          File::Path::make_path($link_to_filepath, { 'verbose' => 1, }) unless $dry_run;
-#print "Execute:", " symlink ", (join ",", @symlink_params), "\n" if $verbose;
-#symlink $link_to_filepath, $link_filepath if ( ! $dry_run);
-#print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
       }
       else {
          print "Not removing Carton installed CPAN files (in dir '.git/carton_local').\n";
-         #print "Execute: remove_tree($link_to_filepath)" if $verbose;
-         #File::Path->remove_tree($link_to_filepath, { 'verbose' => 1, 'safe' => 1, }) unless $dry_run;
       }
    }
    if($action eq 'INSTALL') {
@@ -186,11 +178,11 @@ sub fix_git_config {
          File::Copy::copy($config_filename, $config_bak_filename) unless $dry_run;
          push @config_rows, "[include]\n" unless $dry_run;
          push @config_rows, "\tpath = $hooks_cfg_linkname\n" unless $dry_run;
-         print "Added rows to config 'config_filename':\n";
-         print "[include]\n\tpath = $hooks_cfg_linkname\n";
+         print "Added rows to config 'config_filename':\n" if $verbose;
+         print "[include]\n\tpath = $hooks_cfg_linkname\n" if $verbose;
       }
       else {
-         print "Already set, no changes.\n";
+         print "Already set, no changes.\n" if $verbose;
       }
    }
    else {
@@ -239,7 +231,7 @@ sub link_file_to_other_config {
       if($action eq 'INSTALL') {
          print "Execute:", " symlink ", (join ",", @symlink_params), "\n" if($verbose);
          symlink $link_to_filepath, $link_filepath if ( ! $dry_run);
-         print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
+         print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n" if $verbose;
       }
    }
    return 1;
@@ -269,9 +261,9 @@ sub setup_git_hooks {
       print "Checking for file '$subgit_sample_hook'...\n" if $verbose;
       if( -e $subgit_sample_hook ) {
          $link_filepath =~ s/$hook_filename$/user-$hook_filename/g;
-         print "copy $link_filepath, $link_filepath.bak_$timestamp\n";
+         print "copy $link_filepath, $link_filepath.bak_$timestamp\n" if $verbose;
          File::Copy::copy($link_filepath, "$link_filepath.bak_" . $timestamp) unless $dry_run;
-         print "unlink $link_filepath\n";
+         print "unlink $link_filepath\n" if $verbose;
          unlink $link_filepath unless $dry_run;
       }
       print "Creating symlink from '$link_filepath' "
@@ -295,20 +287,20 @@ sub setup_git_hooks {
    $link_to_filepath = File::Spec->rel2abs(File::Spec->catfile(File::Spec->curdir(), $userhooks_dirname));
    my $link_filepath = File::Spec->rel2abs(File::Spec->catfile($repo_cfg_dir, 'hooks.d'));
 
-   print "Link to directory 'hooks.d'... ";
-   print "(used by Git::Hooks for user hooks).\n";
+   print "Link to directory 'hooks.d'... " if $verbose;
+   print "(used by Git::Hooks for user hooks).\n" if $verbose;
    if( -e $link_filepath && ! -l $link_filepath ) {
       die "The file '$link_filepath' already exists and it not a link. Aborting...";
    }
    else {
       my @unlink_params = ($link_filepath);
       my @symlink_params = ($link_to_filepath, $link_filepath);
-      print "Execute: unlink ", (join ",", @unlink_params), "\n" if($verbose);
+      print "Execute: unlink ", (join ",", @unlink_params), "\n" if $verbose;
       unlink $link_filepath if (! $dry_run);
       if($action eq 'INSTALL') {
-         print "Execute: symlink ", (join ",", @symlink_params), "\n" if($verbose);
+         print "Execute: symlink ", (join ",", @symlink_params), "\n" if $verbose;
          symlink $link_to_filepath, $link_filepath if ( ! $dry_run);
-         print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n";
+         print "Created symlink from '$link_to_filepath' to '$link_filepath'.\n" if $verbose;
       }
    }
    return 1;
@@ -322,10 +314,15 @@ sub handle_local_hooks_prerequisites {
    my $dry_run = defined $params{'dry_run'} ? $params{'dry_run'} : 0;
    my $action = defined $params{'action'} ? $params{'action'} : 0;
 
-   InitializeHooksLocal::execute('verbose' => $verbose,
-   'dry_run' => $dry_run,
-   'action' => $action,
-   );
+   my $loaded = can_load('modules' => { 'InitializeHooksLocal' => undef });
+   if($loaded) {
+      print "Loading local InitializeHooksLocal module.\n" if $verbose;
+      InitializeHooksLocal::execute('verbose' => $verbose,
+            'dry_run' => $dry_run,
+            'action' => $action,
+         );
+   }
+   else { print "No InitializeHooksLocal module. Do not load.\n" if $verbose; }
 
    return 1;
 }
@@ -338,10 +335,15 @@ sub handle_central_hooks_prerequisites {
    my $dry_run = defined $params{'dry_run'} ? $params{'dry_run'} : 0;
    my $action = defined $params{'action'} ? $params{'action'} : 0;
 
-   InitializeHooksCentral::execute('verbose' => $verbose,
-   'dry_run' => $dry_run,
-   'action' => $action,
-   );
+   my $loaded = can_load('modules' => { 'InitializeHooksCentral' => undef });
+   if($loaded) {
+      print "Loading local InitializeHooksCentral module.\n" if $verbose;
+      InitializeHooksCentral::execute('verbose' => $verbose,
+            'dry_run' => $dry_run,
+            'action' => $action,
+         );
+   }
+   else { print "No InitializeHooksCentral module. Do not load.\n" if $verbose; }
 
    return 1;
 }
@@ -371,9 +373,9 @@ sub execute {
    print "Dry-run activated!\n" if ($dry_run);
    
    my $title = "Setup this Git repository with Git::Hooks";
-   print "*" x 79, "\n";
-   print "*** " . centrify_text($title, 71) . " ***\n";
-   print "*" x 79, "\n";
+   print "*" x 79, "\n" if $verbose;
+   print "*** " . centrify_text($title, 71) . " ***\n" if $verbose;
+   print "*" x 79, "\n" if $verbose;
 
    if(! check_plenv() ) { exit 1; }
    install_prerequisites('verbose' => $verbose, 'dry_run' => $dry_run,
@@ -385,8 +387,7 @@ sub execute {
          'repo_cfg_dir' => $repo_cfg_dir, 'hooks_cfg_linkname' => $hooks_cfg_linkname,
          'action' => $action, );
    if($already_set) {
-      #print "Git config is already modified. Not skipping reestablishing file links.\n";
-      print "Git config is already modified. Let's check the links.\n";
+      print "Git config is already modified. Let's check the links.\n" if $verbose;
    }
    link_file_to_other_config('verbose' => $verbose, 'dry_run' => $dry_run, 'action' => $action,
          'repo_cfg_dir' => $repo_cfg_dir,
@@ -410,9 +411,9 @@ sub execute {
    }
 
    my $end_title = "End of Setup";
-   print "*" x 79, "\n";
-   print "*** " . centrify_text($end_title, 71) . " ***\n";
-   print "*" x 79, "\n";
+   print "*" x 79, "\n" if $verbose;
+   print "*** " . centrify_text($end_title, 71) . " ***\n" if $verbose;
+   print "*" x 79, "\n" if $verbose;
 
    return 0;
 }
