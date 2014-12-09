@@ -373,8 +373,8 @@ sub execute {
    print "Dry-run activated!\n" if ($dry_run);
    
    my $title = "Setup this Git repository with Git::Hooks";
-   print "*" x 79, "\n" if $verbose;
-   print "*** " . centrify_text($title, 71) . " ***\n" if $verbose;
+   print "*" x 79, "\n";
+   print "*** " . centrify_text($title, 71) . " ***\n";
    print "*" x 79, "\n" if $verbose;
 
    if(! check_plenv() ) { exit 1; }
@@ -412,8 +412,8 @@ sub execute {
 
    my $end_title = "End of Setup";
    print "*" x 79, "\n" if $verbose;
-   print "*** " . centrify_text($end_title, 71) . " ***\n" if $verbose;
-   print "*" x 79, "\n" if $verbose;
+   print "*** " . centrify_text($end_title, 71) . " ***\n";
+   print "*" x 79, "\n";
 
    return 0;
 }
