@@ -1,5 +1,6 @@
 package InitializeHooks;
 
+my $esing = 0;
 use strict;
 use warnings 'all';
 
