@@ -1,0 +1,11 @@
+#Integer from 1 to 5
+severity  = stern
+
+#Zero or One, observe "## no critic" annotations.
+force     = 0
+
+#Integer or format spec
+#verbose   = 11                                     
+
+#exclude   = Variables  Modules::RequirePackage    #Space-delimited list
+
