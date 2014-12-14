@@ -1,6 +1,10 @@
 [githooks]
 	debug = 0
 	plugin = CheckLog
+	plugin = CheckFile
 	hooks = hooks.d
 [githooks "checklog"]
 	title-required = 0
+	match = "^.*$"
+[githooks "checkfile"]
+	name = *.p[lm] cd ${REPO_ADMIN_DIR} && carton exec \"perlcritic --profile .perlcriticrc --gentle --verbose 5 {}\"
