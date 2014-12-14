@@ -24,6 +24,7 @@ THIS_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ "$VERBOSE" = "1" ]; then echo "This script located in '${THIS_SCRIPT_DIR}'. Changing there."; fi
 cd ${THIS_SCRIPT_DIR}
 export VERBOSE
+export REPO_ADMIN_DIR=$THIS_SCRIPT_DIR
 CMD="exec carton exec perl -x ${THIS_SCRIPT} ${REPO_DIR} ${HOOK_NAME} $@"
 if [ "$VERBOSE" = "1" ]; then echo "Executing: ${CMD}"; fi
 ${CMD}
