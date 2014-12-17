@@ -3,6 +3,7 @@
 	plugin = CheckLog
 	plugin = CheckFile
 	hooks = hooks.d
+	help-on-error = "Git operation failed. Please consult error messages."
 [githooks "checklog"]
 	match = "^.*$"
 	title-required = 0
@@ -11,5 +12,6 @@
 	body-max-width = 0
 	spelling = 0
 	spelling-lang = EN
+	help-on-error = "Some general information on commit messages and possible policies for them: http://www.kernel.org/pub/software/scm/git/docs/git-commit.html"
 [githooks "checkfile"]
-	name = *.p[lm] cd ${REPO_ADMIN_DIR} && carton exec \"perlcritic --profile .perlcriticrc --gentle --verbose 5 {}\"
+	name = *.p[lm] cd ${REPO_ADMIN_DIR} && carton exec \"perlcritic --profile .perlcriticrc {}\"

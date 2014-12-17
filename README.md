@@ -22,6 +22,10 @@ It tries to fulfill several demands:
 * Automatic updates: The hook reruns the initialization script at every *Git pull*.
 * Uses Perl tools Plenv and Carton to isolate the Perl installation and keep it apart from system Perl, thus not "polluting" the module namespace.
 
+## Requirements
+
+* At least Git 1.7.10, because the config option *include.path* is used.
+
 ## Used technology
 
 * [Git::Hooks](https://metacpan.org/release/Git-Hooks) framework
@@ -34,18 +38,20 @@ It tries to fulfill several demands:
 ## Local Repository Installation
 
 1. Copy the directory *.git-repo-admin* to the root of your repository.
-2. Commit the directory. (Not necessary if you just want the hooks for yourself.)
-3. Execute script *.git-repo-admin/initialize-hooks.sh*.
+2. Place your hook configuration to file *.git-repo-admin/config_hooks_user.local*
+3. Commit the directory. (Not necessary if you just want the hooks for yourself.)
+4. Execute script *.git-repo-admin/initialize-hooks.sh*.
 
 ## Central (Bare) Repository Installation
 
 This is more tricky because the bare repo normally doesn't have a working directory.
 
 1. Copy the directory *.git-repo-admin* to the root of your repository.
-2. Commit the directory.
-3. Checkout your central repo to a local directory, preferably next to the central repo.
+2. Place your hook configuration to file *.git-repo-admin/config_hooks_user.central*
+3. Commit the directory.
+4. Checkout your central repo to a local directory, preferably next to the central repo.
 E.g. *git clone --local file://repo.git repo.hooks*
-4. Execute script *.git-repo-admin/initialize-hooks.sh* with parameter *--central*.
+5. Execute script *.git-repo-admin/initialize-hooks.sh* with parameter *--central*.
 
 # Copyright & Licensing
 
