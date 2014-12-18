@@ -38,19 +38,35 @@ It tries to fulfill several demands:
 ## Local Repository Installation
 
 1. Copy the directory *.git-repo-admin* to the root of your repository.
-2. Place your hook configuration to file *.git-repo-admin/config_hooks_user.local*
-3. Commit the directory. (Not necessary if you just want the hooks for yourself.)
+2. Place your Git::Hooks configuration to file *.git-repo-admin/config_hooks.local*.
+   You can start by copying the file *.git-repo-admin/config_hooks.example* and modifying it.
+   Place your additional hooks (other programs, not Git::Hooks hooks) to the directory 
+   *.git-repo-admin/hooks.d.local* and the subdirectory according to the Git hook you want to execute it with,
+   e.g. pre-commit, commit-msg, etc.
+   If your hooks need additional software installed:
+   * Place all Perl module requirements into file *.git-repo-admin/cpanfile* together with their exact required versions.
+      Execute *carton install* and they will be downloaded and configuration put into file *.git-repo-admin/cpanfile.snapshot*.
+      Commit this file because it will be used by the next person installing or updating their hooks.
+      (If you haven't got *carton* available yet, it will become so after you initialize the hooks (step 4.).
+   * Place all other requirements into the script *.git-repo-admin/InitializeHooksLocal.pm*.
+      You can start by copying the file *.git-repo-admin/InitializeHooksLocal.pm.example* and modifying it.
+3. Commit the directory, including your changes. (Not necessary if you just want the hooks for yourself.
+   In that case, add the directory name to file *.gitignore*.)
 4. Execute script *.git-repo-admin/initialize-hooks.sh*.
+5. The next time you pull from repo, the script *.git-repo-admin/hooks.d.local/post-merge/re-initialize-hooks.sh*
+   will automatically run the initializing script and update your installation if necessary.
 
 ## Central (Bare) Repository Installation
 
 This is more tricky because the bare repo normally doesn't have a working directory.
 
 1. Copy the directory *.git-repo-admin* to the root of your repository.
-2. Place your hook configuration to file *.git-repo-admin/config_hooks_user.central*
+2. Place your hook configuration to file *.git-repo-admin/config_hooks_user.central*.
+   (follow instructions as in Local installation; Use file *.git-repo-admin/InitializeHooksCentral.pm* for other software.)
 3. Commit the directory.
 4. Checkout your central repo to a local directory, preferably next to the central repo.
 E.g. *git clone --local file://repo.git repo.hooks*
+
 5. Execute script *.git-repo-admin/initialize-hooks.sh* with parameter *--central*.
 
 # Copyright & Licensing
