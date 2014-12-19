@@ -7,6 +7,7 @@
 
 # Activate verbose if desired
 VERBOSE=${VERBOSE}
+AUXILIARY_SCRIPT="./git-hooks-aux.sh"
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
 if [ "$VERBOSE" = "1" ]; then echo "PATH:${PATH}"; fi
 if [ "$VERBOSE" = "1" ]; then echo "Command line: '$0 $@'"; fi
@@ -24,7 +25,10 @@ THIS_SCRIPT="${SOURCE}"
 THIS_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ "$VERBOSE" = "1" ]; then echo "This script located in '${THIS_SCRIPT_DIR}'. Changing there."; fi
 cd ${THIS_SCRIPT_DIR}
-if [ -e "git-hooks-aux.sh" ]; then source ./git-hooks-aux.sh; fi
+if [ -e "${AUXILIARY_SCRIPT}" ];
+   then source ${AUXILIARY_SCRIPT};
+   if [ "$VERBOSE" = "1" ]; then echo "Sourcing aux script: ${AUXILIARY_SCRIPT}"; fi
+fi
 export VERBOSE
 export REPO_ADMIN_DIR=$THIS_SCRIPT_DIR
 CMD="exec carton exec perl -x ${THIS_SCRIPT} ${REPO_DIR} ${HOOK_NAME} $@"
