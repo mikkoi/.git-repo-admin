@@ -92,7 +92,7 @@ sub install_prerequisites {
    system("cpanm Carton");
    print "Installing Perl dependencies using 'Carton'.\n" if $verbose;
    my $link_filepath = File::Spec->rel2abs(File::Spec->catdir(File::Spec->curdir(), 'local')); # This link already exists!
-   my $link_to_filepath = File::Spec->rel2abs(File::Spec->catdir($repo_cfg_dir, 'git-hooks-carton-local'));
+   my $link_to_filepath = File::Spec->rel2abs(readlink($link_filepath));
    if( -e $link_filepath && ! -l $link_filepath ) {
       die "The file '$link_filepath' already exists and it is not a link. Aborting...";
    }
@@ -103,7 +103,7 @@ sub install_prerequisites {
       my @unlink_params = ($link_filepath);
       my @symlink_params = ($link_to_filepath, $link_filepath);
       if($action eq 'INSTALL') {
-         print "Execute: make_path($link_to_filepath)" if $verbose;
+         print "Execute: make_path($link_to_filepath)\n" if $verbose;
          File::Path::make_path($link_to_filepath, { 'verbose' => 1, }) unless $dry_run;
       }
       else {
