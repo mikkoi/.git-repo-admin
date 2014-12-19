@@ -2,7 +2,6 @@
 	debug = 0
 	plugin = CheckLog
 	plugin = CheckFile
-	hooks = hooks.d
 	help-on-error = "Push failed. Please consult error messages."
 [githooks "checklog"]
 	match = "^.*$"
