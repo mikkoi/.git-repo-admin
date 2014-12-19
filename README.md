@@ -68,6 +68,9 @@ This is more tricky because the bare repo normally doesn't have a working direct
 E.g. *git clone --local file://repo.git repo.hooks*
 
 5. Execute script *.git-repo-admin/initialize-hooks.sh* with parameter *--central*.
+6. Have problems with *.git-repo-admin/git-hooks.sh* in finding all the paths and command executables?
+   Put the necessary stuff in file *.git-repo-admin/git-hooks-aux.sh*.
+   You can start by copying the file *.git-repo-admin/git-hooks-aux.sh.example* and modifying it.
 
 # Copyright & Licensing
 

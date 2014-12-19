@@ -8,6 +8,7 @@
 # Activate verbose if desired
 VERBOSE=${VERBOSE}
 CONF_DBG=`git config --get githooks.debug` && [ "${CONF_DBG}" = "1" ] && VERBOSE=1
+if [ "$VERBOSE" = "1" ]; then echo "PATH:${PATH}"; fi
 if [ "$VERBOSE" = "1" ]; then echo "Command line: '$0 $@'"; fi
 REPO_DIR=$(pwd)
 if [ "$VERBOSE" = "1" ]; then echo "Repository dir: '${REPO_DIR}'"; fi
@@ -23,6 +24,7 @@ THIS_SCRIPT="${SOURCE}"
 THIS_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ "$VERBOSE" = "1" ]; then echo "This script located in '${THIS_SCRIPT_DIR}'. Changing there."; fi
 cd ${THIS_SCRIPT_DIR}
+if [ -e "git-hooks-aux.sh" ]; then source ./git-hooks-aux.sh; fi
 export VERBOSE
 export REPO_ADMIN_DIR=$THIS_SCRIPT_DIR
 CMD="exec carton exec perl -x ${THIS_SCRIPT} ${REPO_DIR} ${HOOK_NAME} $@"
