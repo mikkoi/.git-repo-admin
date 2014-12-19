@@ -5,6 +5,8 @@ Automate the maintenance of [Git hooks](http://git-scm.com/docs/githooks),
 both local and central (bare) repository.
 The hooks are executed under [Git::Hooks](https://metacpan.org/release/Git-Hooks) framework.
 
+[GitHub Repository](https://github.com/mikkoi/.git-repo-admin).
+
 ## What Does *.git-repo-admin* Do?
 
 It tries to fulfill several demands:
