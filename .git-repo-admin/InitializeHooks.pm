@@ -107,7 +107,7 @@ sub install_prerequisites {
          File::Path::make_path($link_to_filepath, { 'verbose' => 1, }) unless $dry_run;
       }
       else {
-         print "Not removing Carton installed CPAN files (in dir '.git/carton_local').\n";
+         print "Not removing Carton installed CPAN files (in dir '$link_to_filepath').\n";
       }
    }
    if($action eq 'INSTALL') {
