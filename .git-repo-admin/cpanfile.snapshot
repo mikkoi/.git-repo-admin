@@ -364,35 +364,32 @@ DISTRIBUTIONS
     requirements:
       Error 0
       ExtUtils::MakeMaker 0
-  Git-Hooks-1.4.0
-    pathname: G/GN/GNUSTAVO/Git-Hooks-1.4.0.tar.gz
+  Git-Hooks-1.6.7
+    pathname: G/GN/GNUSTAVO/Git-Hooks-1.6.7.tar.gz
     provides:
-      Git::Hooks 1.004000
-      Git::Hooks::CheckAcls 1.004000
-      Git::Hooks::CheckFile 1.004000
-      Git::Hooks::CheckJira 1.004000
-      Git::Hooks::CheckLog 1.004000
-      Git::Hooks::CheckRewrite 1.004000
-      Git::Hooks::CheckStructure 1.004000
-      Git::Hooks::GerritChangeId 1.004000
-      Git::More 1.004000
-      Git::More::Message 1.004000
+      Git::Hooks 1.006007
+      Git::Hooks::CheckAcls 1.006007
+      Git::Hooks::CheckFile 1.006007
+      Git::Hooks::CheckJira 1.006007
+      Git::Hooks::CheckLog 1.006007
+      Git::Hooks::CheckRewrite 1.006007
+      Git::Hooks::CheckStructure 1.006007
+      Git::Hooks::CheckWhitespace 1.006007
+      Git::Hooks::GerritChangeId 1.006007
+      Git::More 1.006007
+      Git::More::Message 1.006007
     requirements:
       Carp 0
       Cwd 0
-      Data::Dumper 0
       Data::Util 0
       Encode 0
       Error 0
       Exporter 0
-      ExtUtils::MakeMaker 6.30
-      File::Path 2.08
-      File::Slurp 0
-      File::Spec::Functions 0
-      File::Temp 0
+      ExtUtils::MakeMaker 0
       Gerrit::REST 0
       Git 0
       List::MoreUtils 0
+      Path::Tiny 0
       Text::Glob 0
       parent 0
       perl 5.010
