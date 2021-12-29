@@ -1,0 +1,6 @@
+requires 'perl'                                 => '5.16';
+
+# Add here everything your hooks require.
+requires 'Git::Hooks'                           => '3.2.0';
+requires 'Git::MoreHooks'                       => '0.010';
+requires 'Log::Any'                             => '1.710';

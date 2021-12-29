@@ -1,0 +1,10 @@
+
+Revision History
+
+
+0.002       2021-12-29
+            - Reworked most part, especially the server side.
+            - All installation parts, do not use Perl when installing, only Bash.
+
+0.001       2014-10-18
+            - Initial version.

@@ -1,0 +1,5 @@
+# The current version of the configuration
+# If this version is higher than the local,
+# Git::MoreHooks::GitRepoAdmin will recommend an update to local files.
+# Applies only to master/main branch.
+1
