@@ -1,0 +1,4 @@
+# TODO
+
+- Unit tests for Bash functions.
+- githooks.pl needs a githooks.ini file for logging parameters (usable on server side)
